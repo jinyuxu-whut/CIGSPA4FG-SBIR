@@ -22,7 +22,7 @@ def cal_triplet_loss(dis, margin):
     loss = torch.mean(loss)
     return loss
 
-def contextual_loss(sk_emb, ph_emb, match, delta=1.0, topk=10, sigma=3.0):
+def contextual_loss(sk_emb, ph_emb, match, delta=1.0, topk=10, sigma=3.0, weight_P=0.5, weight_C=0.5):
 
     bs, n, f = sk_emb.shape
     bp, n, f = ph_emb.shape
@@ -52,7 +52,8 @@ def contextual_loss(sk_emb, ph_emb, match, delta=1.0, topk=10, sigma=3.0):
             
         W_C_hat = W_C_tilda[topk_half_index].mean(1)
         W_C = (W_C_hat + W_C_hat.t())/2 # symmetric
-        W = (W_P + W_C)/2
+        # W = (W_P + W_C)/2
+        W = weight_P * W_P + weight_C * W_C
 
         identity_matrix = torch.eye(bp).cuda(non_blocking=True)
         pos_weight = identity_matrix   

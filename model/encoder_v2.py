@@ -6,7 +6,7 @@ from torch.nn import functional as F
 
 # v2
 class Encoder(nn.Module):
-    def __init__(self, feature_type="mid", k=0.7):
+    def __init__(self, feature_type="mid", k=0.5):
         super(Encoder, self).__init__()
         resnet50 = models.resnet50(weights=models.ResNet50_Weights.IMAGENET1K_V2)
         self.feature_type=feature_type
@@ -26,7 +26,6 @@ class Encoder(nn.Module):
             self.fc_attn = nn.Linear(self.fea_channel, 1)
             self.global_avg = nn.AdaptiveAvgPool1d(1)
 
-            # print("******new Net v2************")
         elif feature_type == "global":
             self.backbone = nn.Sequential(
                 OrderedDict(list(resnet50.named_children())[:-2])
@@ -35,7 +34,7 @@ class Encoder(nn.Module):
             self.fea_channel = 2048
         
         self.k = k
-        # print("******using filter************ k:" + str(self.k))
+        
     def forward(self, x):
         fea = self.backbone(x)
         if self.feature_type == "global":

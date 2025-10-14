@@ -20,12 +20,13 @@ class AverageMeter(object):
         self.count += n
         self.avg = self.sum / self.count
 
-def get_retrieval_acc(
+def get_retrieval_acc_quml(
     ph_encoder,
     sk_encoder,
     ph_loader,
     sk_loader,
     epoch,
+    self_interaction=None,
     match=None,
     dataset="qmul",
 ):
@@ -45,6 +46,8 @@ def get_retrieval_acc(
             else:
                 ph_fea = ph_encoder(ph)
             # [B,F]
+            if self_interaction:
+                ph_fea = self_interaction(ph_fea)
             ph_fea = ph_fea.cpu()
 
             for i in range(ph.shape[0]):
@@ -72,6 +75,8 @@ def get_retrieval_acc(
             else:
                 sk_fea = sk_encoder(sketch)
             # [B,F]
+            if self_interaction:
+                sk_fea = self_interaction(sk_fea)
             i_sk = i_sk * sk_loader.batch_size
             j_sk = i_sk + sk_fea.shape[0]
             for i_ph in range(0, ph_num, 32):
